@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUPER SECRET STASH</title>
+    <style>
+        /* Полностью черный фон и центрирование всего */
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Заголовок стал больше и сместился ниже */
+        h1 {
+            font-size: 64px;
+            font-weight: 900;
+            letter-spacing: 7px;
+            margin: 0;
+            position: absolute;
+            top: 15%;
+            text-align: center;
+            text-transform: uppercase;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
+            width: 100%;
+            user-select: none;
+        }
+
+        /* Основной контейнер */
+        .main-layout {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px; /* Фиксированный зазор, когда плеер скрыт (щели между 2 и 3 больше нет) */
+            width: 95%;
+            max-width: 1400px;
+            height: 500px;
+            position: relative;
+            margin-top: 100px;
+            transition: gap 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* Группы кнопок */
+        .btn-group {
+            display: flex;
+            flex-direction: row;
+            gap: 20px; /* Такой же зазор между 1-2 и 3-4 */
+            z-index: 10;
+        }
+
+        /* Стили для кнопок-цифр */
+        .video-btn {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            border: 2px solid #222222;
+            width: 75px;
+            height: 75px;
+            font-size: 26px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .video-btn:hover {
+            background-color: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Контейнер для видеоплеера */
+        .video-container {
+            width: 0;
+            height: 100%;
+            opacity: 0;
+            overflow: hidden;
+            background-color: #050505;
+            border: 0 solid #222222;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Абсолютное позиционирование в центре, чтобы не создавать щель на старте */
+            position: absolute; 
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 5;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Кнопка Back внизу со стрелочкой */
+        .back-btn {
+            position: absolute;
+            bottom: 60px;
+            background: none;
+            border: 1px solid #444444;
+            color: #888888;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            color: #ffffff;
+            border-color: #ffffff;
+            background-color: #111111;
+        }
+
+        /* Твой ник и тег в правом нижнем углу */
+        .footer-credits {
+            position: absolute;
+            bottom: 25px;
+            right: 35px;
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 14px;
+            text-align: right;
+            line-height: 1.5;
+            user-select: none;
+        }
+
+        .footer-credits strong {
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        /* --- СОСТОЯНИЕ АКТИВНОГО ПЛЕЕРА --- */
+        body.player-active .main-layout {
+            gap: 860px; /* Раздвигаем левую и правую группы кнопок, освобождая место */
+        }
+
+        body.player-active .video-container {
+            width: 800px;
+            opacity: 1;
+            border-width: 1px;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        body.player-active .back-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>SALIM PURNA HUB</h1>
+
+    <div class="main-layout">
+        <div class="btn-group" id="leftGroup">
+            <button class="video-btn" onclick="playVideo('video1.mp4')">1</button>
+            <button class="video-btn" onclick="playVideo('video2.mp4')">2</button>
+        </div>
+
+        <div class="video-container" id="videoWrapper">
+            <video id="myPlayer" controls></video>
+        </div>
+
+        <div class="btn-group" id="rightGroup">
+            <button class="video-btn" onclick="playVideo('video3.mp4')">3</button>
+            <button class="video-btn" onclick="playVideo('video4.mp4')">4</button>
+        </div>
+    </div>
+
+    <button class="back-btn" onclick="closeVideo()">← Back</button>
+
+    <div class="footer-credits">
+        <strong>remaked.dll</strong><br>
+        <strong>@HopelyLover</strong>
+    </div>
+
+    <script>
+        const body = document.body;
+        const videoElement = document.getElementById('myPlayer');
+
+        function playVideo(videoSrc) {
+            videoElement.src = videoSrc;
+            
+            // Запускаем анимацию разлета кнопок и появление плеера
+            body.classList.add('player-active');
+            
+            videoElement.play();
+        }
+
+        function closeVideo() {
+            // Возвращаем кнопки обратно в ровный ряд по центру
+            body.classList.remove('player-active');
+            videoElement.pause();
+            
+            setTimeout(() => {
+                videoElement.src = "";
+            }, 600);
+        }
+    </script>
+
+</body>
+</html>
